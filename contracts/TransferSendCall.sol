@@ -56,6 +56,7 @@ contract TransferSendCall {
     function sendViaCall(address payable _to) public payable {
         // Call returns a boolean value indicating success or failure.
         // This is the current recommended method to use.
+        // ("123") is msg.data
         (bool sent, bytes memory data) = _to.call{value : msg.value}("123");
         require(sent, "Failed to send Ether");
     }

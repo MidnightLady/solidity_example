@@ -15,6 +15,7 @@ contract FundWallet {
         uint number;
         uint[] t_index;
     }
+
     struct Allowance {
         uint total;
         uint number;
@@ -26,7 +27,8 @@ contract FundWallet {
         Payment payment;
         Allowance allowance;
     }
-    mapping(address => Transaction[]) public Fund;
+
+    mapping(address => Transaction[]) public Transactions;
     mapping(address => Wallet) public Fund;
 
     constructor() payable{
@@ -34,11 +36,12 @@ contract FundWallet {
     }
 
     function addFund() public payable {
-        Fund[msg.sender].total += msg.value;
-        Fund[msg.sender].number += 1;
-        Transaction memory trans = Transaction(msg.value, block.timestamp);
-        tx2[msg.sender].push(trans);
-        Fund[msg.sender].tx1.push(trans);
+        Fund[msg.sender].balance += msg.value;
+        Transaction memory tran = Transaction(msg.value, block.timestamp);
+        Transactions[msg.sender].push(tran);
+        Fund[msg.sender].payment.total += msg.value;
+        Fund[msg.sender].payment.number += 1;
+        Fund[msg.sender].payment.t_index.push(Transactions[msg.sender].length-1);
     }
 
 
@@ -47,23 +50,13 @@ contract FundWallet {
 
     }
 
-    function getTransaction1() public view returns (Transaction[] memory){
-        Transaction[] memory t = Fund[msg.sender].tx1;
-        return t;
-    }
-    function deleteTrans(uint _index) public {
-        Transaction[] storage tran = Fund[msg.sender].tx1;
-        tran[_index] = tran[tran.length - 1];
-        tran.pop();
-    }
-
     function withdrawFund() public {
         address payable to = payable(msg.sender);
         to.transfer(getBalance());
 
     }
 
-    fallback() external payable {
+    receive() external payable {
         addFund();
     }
 

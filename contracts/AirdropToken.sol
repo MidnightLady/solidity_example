@@ -2,20 +2,21 @@
 
 pragma solidity ^0.8.0;
 
-import "../OpenZeppelin/openzeppelin-contracts@4.8.0/contracts/token/ERC20/IERC20.sol";
-import "../OpenZeppelin/openzeppelin-contracts@4.8.0/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "../OpenZeppelin/openzeppelin-contracts@4.8.0/contracts/utils/Context.sol";
+import "@openzeppelin4.8.0/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin4.8.0/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin4.8.0/contracts/utils/Context.sol";
 
 
 contract AirdropToken is IERC20, IERC20Metadata {
-    mapping(address => uint256) private _balances;
-
-    mapping(address => mapping(address => uint256)) private _allowances;
-
     uint256 private _totalSupply;
     string private _name;
     string private _symbol;
     uint8 private _decimals;
+
+    mapping(address => uint256) private _balances;
+
+    mapping(address => mapping(address => uint256)) private _allowances;
+
 
     constructor(string memory name_, string memory symbol_) {
         _name = name_;
@@ -167,21 +168,22 @@ contract TokenVault {
     constructor(address token) {
         valid_token[token] = true;
     }
-    event received(address from, address token, uint amount, uint total);
+    event Received(address from, address token, uint amount, uint total);
 
     function receiveToken(address token_addr, uint amount) public {
+        emit Received(msg.sender, token_addr, amount, vault[msg.sender][token_addr]);
+
         require(valid_token[token_addr] == true, 'token is not allow');
         require(amount > 0, 'amount is not valid');
 
         bool result = IERC20(token_addr).transferFrom(msg.sender, address(this), amount);
 
-//        (bool success, bytes memory data) = token_addr.call(
-//            abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), amount));
+        //        (bool success, bytes memory data) = token_addr.call(
+        //            abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), amount));
 
         if (result) {
             vault[msg.sender][token_addr] += amount;
         }
-        emit received(msg.sender, token_addr, amount, vault[msg.sender][token_addr]);
     }
 }
 
